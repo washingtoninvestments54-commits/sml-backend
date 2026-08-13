@@ -3,6 +3,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
@@ -13,11 +14,17 @@ const io = new Server(server, {
 
 app.use(cors());
 app.use(express.json());
+app.use('/gifts', express.static(path.join(__dirname, 'public/gifts')));
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 // CDN base for cinematic gift videos
 const CDN_BASE = "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos";
+
+// Self-hosted gift video base URL
+const GIFTS_BASE = process.env.RAILWAY_PUBLIC_DOMAIN 
+  ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}/gifts`
+  : 'https://sml-backend-production-0954.up.railway.app/gifts';
 
 // Full 90-gift database with all categories, lucky gifts, and cinematic URLs
 const GIFT_TYPES = [
@@ -32,9 +39,9 @@ const GIFT_TYPES = [
   { id: 8, name: "Trophy", emoji: "🏆", coin_cost: 250, animation_class: "gift-trophy", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
   { id: 9, name: "Lion Roar", emoji: "🦁", coin_cost: 75000, animation_class: "gift-lion-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${CDN_BASE}/046a1834d48c46df.mp4` },
   { id: 10, name: "Dragon Fire", emoji: "🐉", coin_cost: 20000, animation_class: "gift-dragon-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${CDN_BASE}/413c39b54df4f333.mp4` },
-  { id: 11, name: "Phoenix Rising", emoji: "🦅", coin_cost: 5000, animation_class: "gift-phoenix-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
-  { id: 12, name: "Diamond Storm", emoji: "💎", coin_cost: 2000, animation_class: "gift-diamond-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
-  { id: 13, name: "Galaxy Blast", emoji: "🌌", coin_cost: 10000, animation_class: "gift-galaxy-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 11, name: "Phoenix Rising", emoji: "🦅", coin_cost: 5000, animation_class: "gift-phoenix-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${GIFTS_BASE}/phoenix_rising.mp4` },
+  { id: 12, name: "Diamond Storm", emoji: "💎", coin_cost: 2000, animation_class: "gift-diamond-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${GIFTS_BASE}/diamond_storm.mp4` },
+  { id: 13, name: "Galaxy Blast", emoji: "🌌", coin_cost: 10000, animation_class: "gift-galaxy-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${GIFTS_BASE}/galaxy_blast.mp4` },
   { id: 14, name: "King's Crown", emoji: "👑", coin_cost: 50000, animation_class: "gift-crown-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: "https://customer-assets-agu9un31.emergentagent.net/wingman/7fe9a122-157e-48c4-a338-be0912ddbb1f/attachments/312151b4dcd54a4eabb61d888ba3accf_kings_crown.mov" },
   { id: 15, name: "Heart Me", emoji: "❤️", coin_cost: 1, animation_class: "gift-heart-me", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
   { id: 16, name: "Music Note", emoji: "🎵", coin_cost: 5, animation_class: "gift-music-note", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
@@ -52,16 +59,16 @@ const GIFT_TYPES = [
   { id: 28, name: "Good Night", emoji: "🌙", coin_cost: 399, animation_class: "gift-good-night", category: "gifts", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: null },
   { id: 29, name: "Capibara Dance", emoji: "🦫", coin_cost: 399, animation_class: "gift-capibara", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
   { id: 30, name: "Match Master", emoji: "🎯", coin_cost: 500, animation_class: "gift-match-master", category: "gifts", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: null },
-  { id: 31, name: "Galaxy", emoji: "✨", coin_cost: 1000, animation_class: "gift-galaxy", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
-  { id: 32, name: "Matchtacular", emoji: "🎮", coin_cost: 1000, animation_class: "gift-matchtacular", category: "gifts", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: null },
-  { id: 33, name: "Tom Thunderfoot", emoji: "🥁", coin_cost: 2499, animation_class: "gift-thunder", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
-  { id: 34, name: "Match Maniac", emoji: "🎲", coin_cost: 2999, animation_class: "gift-match-maniac", category: "gifts", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 31, name: "Galaxy", emoji: "✨", coin_cost: 1000, animation_class: "gift-galaxy", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${GIFTS_BASE}/galaxy.mp4` },
+  { id: 32, name: "Matchtacular", emoji: "🎮", coin_cost: 1000, animation_class: "gift-matchtacular", category: "gifts", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: `${GIFTS_BASE}/matchtacular.mp4` },
+  { id: 33, name: "Tom Thunderfoot", emoji: "🥁", coin_cost: 2499, animation_class: "gift-thunder", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${GIFTS_BASE}/tom_thunderfoot.mp4` },
+  { id: 34, name: "Match Maniac", emoji: "🎲", coin_cost: 2999, animation_class: "gift-match-maniac", category: "gifts", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: `${GIFTS_BASE}/match_maniac.mp4` },
 
   // ─── Interactive Gifts (category: "interactive") ─────────────────────────────
-  { id: 35, name: "Interstellar Trek", emoji: "🚀", coin_cost: 14999, animation_class: "gift-interstellar", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
-  { id: 36, name: "Stadium", emoji: "🏟️", coin_cost: 15999, animation_class: "gift-stadium", category: "interactive", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: null },
-  { id: 37, name: "Amusement Park", emoji: "🎡", coin_cost: 17000, animation_class: "gift-amusement", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
-  { id: 38, name: "Castle Fantasy", emoji: "🏰", coin_cost: 20000, animation_class: "gift-castle", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 35, name: "Interstellar Trek", emoji: "🚀", coin_cost: 14999, animation_class: "gift-interstellar", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${GIFTS_BASE}/interstellar_trek.mp4` },
+  { id: 36, name: "Stadium", emoji: "🏟️", coin_cost: 15999, animation_class: "gift-stadium", category: "interactive", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: `${GIFTS_BASE}/stadium.mp4` },
+  { id: 37, name: "Amusement Park", emoji: "🎡", coin_cost: 17000, animation_class: "gift-amusement", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${GIFTS_BASE}/amusement_park.mp4` },
+  { id: 38, name: "Castle Fantasy", emoji: "🏰", coin_cost: 20000, animation_class: "gift-castle", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${GIFTS_BASE}/castle_fantasy.mp4` },
   { id: 42, name: "Fighter Jets", emoji: "✈️", coin_cost: 8000, animation_class: "gift-fighter-jets", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/424449d4606f055b.mp4` },
   { id: 43, name: "Dino Roar", emoji: "🦖", coin_cost: 12000, animation_class: "gift-dino-roar", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/721e2d3275e6c211.mp4` },
   { id: 45, name: "DJ Lion", emoji: "🎧", coin_cost: 15000, animation_class: "gift-dj-lion", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/b7a5b2bdbdd98663.mp4` },
@@ -120,6 +127,8 @@ const GIFT_TYPES = [
   { id: 88, name: "Lucky Unicorn", emoji: "🦄", coin_cost: 25, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 100, max_diamond_reward: 5000 },
   { id: 89, name: "Lucky Dragon", emoji: "🐉", coin_cost: 50, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 200, max_diamond_reward: 10000 },
   { id: 90, name: "Lucky Orb", emoji: "🔮", coin_cost: 100, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 500, max_diamond_reward: 50000 },
+  { id: 93, name: "Adam's Dream", emoji: "🌟", coin_cost: 90000, animation_class: "gift-adams-dream", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: `${GIFTS_BASE}/adams_dream.mp4` },
+  { id: 94, name: "Ferris Wheel", emoji: "🎡", coin_cost: 8000, animation_class: "gift-ferris-wheel", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${GIFTS_BASE}/ferris_wheel_pink.mp4` },
 ];
 
 // Legacy cinematic gifts array (kept for backwards compatibility with old clients)
