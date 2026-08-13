@@ -16,47 +16,120 @@ app.use(express.json());
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const gifts = [
-  { id: 1, name: "Lion Roar", emoji: "🦁", coin_cost: 10, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/046a1834d48c46df.mp4" },
-  { id: 2, name: "Dragon Fire", emoji: "🐉", coin_cost: 50, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/413c39b54df4f333.mp4" },
-  { id: 3, name: "Unicorn Magic", emoji: "🦄", coin_cost: 30, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/d1264085471a5600.mp4" },
-  { id: 4, name: "Mardi Castle", emoji: "🏰", coin_cost: 100, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/75e5df38bfe8002a.mp4" },
-  { id: 5, name: "Emerald Castle", emoji: "💚", coin_cost: 200, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/aeb16ed0a4050e9e.mp4" },
-  { id: 6, name: "Black God Gift", emoji: "👑", coin_cost: 500, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/d2e18806e6fbfc08.mp4" },
-  { id: 7, name: "Whale Breach", emoji: "🐋", coin_cost: 75, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/6fba9ad4b8a7cb09.mp4" },
-  { id: 8, name: "Queen of Heaven", emoji: "🌸", coin_cost: 300, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/0e23a26c03156993.mp4" },
-  { id: 9, name: "Second Coming", emoji: "✝️", coin_cost: 1000, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/0f1fc6af86b1a973.mp4" },
-  { id: 10, name: "Stealth Bomber", emoji: "✈️", coin_cost: 150, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/424449d4606f055b.mp4" },
-  { id: 11, name: "Supercar Launch", emoji: "🚀", coin_cost: 250, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/e08f836ffc87f503.mp4" },
-  { id: 12, name: "Lion DJ", emoji: "🎧", coin_cost: 80, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/b7a5b2bdbdd98663.mp4" },
-  { id: 13, name: "Mardi Float", emoji: "🎭", coin_cost: 60, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/9d0782006ea081aa.mp4" },
-  { id: 14, name: "White Tiger", emoji: "⚡", coin_cost: 120, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/ae4d3060cf2fcbc8.mp4" },
-  { id: 15, name: "Screaming Eagle", emoji: "🦅", coin_cost: 40, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/00947de3ffd93cc1.mp4" },
-  { id: 16, name: "Robot Monster", emoji: "🤖", coin_cost: 180, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/721e2d3275e6c211.mp4" },
-  { id: 17, name: "Heavenly Elephant", emoji: "🐘", coin_cost: 350, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/cfd63d61fb1e3bab.mp4" },
-  { id: 18, name: "Clown Circus", emoji: "🤡", coin_cost: 20, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/a67ad455f1b842eb.mp4" },
-  { id: 19, name: "Super Win", emoji: "🏈", coin_cost: 90, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/efe991dbad9a4b54.mp4" },
-  { id: 20, name: "Dream Castle", emoji: "🌟", coin_cost: 400, animationUrl: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/41684a731489dc8f.mp4" },
+// CDN base for cinematic gift videos
+const CDN_BASE = "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos";
+
+// Full 90-gift database with all categories, lucky gifts, and cinematic URLs
+const GIFT_TYPES = [
+  // ─── Standard Gifts (category: "gifts") ─────────────────────────────────────
+  { id: 1, name: "Rose", emoji: "🌹", coin_cost: 10, animation_class: "gift-rose", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 2, name: "Mic", emoji: "🎤", coin_cost: 25, animation_class: "gift-mic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 3, name: "Guitar", emoji: "🎸", coin_cost: 50, animation_class: "gift-guitar", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 4, name: "Crown", emoji: "👑", coin_cost: 100, animation_class: "gift-crown", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 5, name: "Diamond", emoji: "💎", coin_cost: 500, animation_class: "gift-diamond", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 6, name: "Rocket", emoji: "🚀", coin_cost: 1000, animation_class: "gift-rocket", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 7, name: "Fire", emoji: "🔥", coin_cost: 75, animation_class: "gift-fire", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 8, name: "Trophy", emoji: "🏆", coin_cost: 250, animation_class: "gift-trophy", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 9, name: "Lion Roar", emoji: "🦁", coin_cost: 75000, animation_class: "gift-lion-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${CDN_BASE}/046a1834d48c46df.mp4` },
+  { id: 10, name: "Dragon Fire", emoji: "🐉", coin_cost: 20000, animation_class: "gift-dragon-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: `${CDN_BASE}/413c39b54df4f333.mp4` },
+  { id: 11, name: "Phoenix Rising", emoji: "🦅", coin_cost: 5000, animation_class: "gift-phoenix-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 12, name: "Diamond Storm", emoji: "💎", coin_cost: 2000, animation_class: "gift-diamond-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 13, name: "Galaxy Blast", emoji: "🌌", coin_cost: 10000, animation_class: "gift-galaxy-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 14, name: "King's Crown", emoji: "👑", coin_cost: 50000, animation_class: "gift-crown-cinematic", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: "https://customer-assets-agu9un31.emergentagent.net/wingman/7fe9a122-157e-48c4-a338-be0912ddbb1f/attachments/312151b4dcd54a4eabb61d888ba3accf_kings_crown.mov" },
+  { id: 15, name: "Heart Me", emoji: "❤️", coin_cost: 1, animation_class: "gift-heart-me", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 16, name: "Music Note", emoji: "🎵", coin_cost: 5, animation_class: "gift-music-note", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 17, name: "Tiny Dino", emoji: "🦕", coin_cost: 10, animation_class: "gift-tiny-dino", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 18, name: "Doughnut", emoji: "🍩", coin_cost: 30, animation_class: "gift-doughnut", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 19, name: "Bouquet", emoji: "💐", coin_cost: 30, animation_class: "gift-bouquet", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 20, name: "Soccer Ball", emoji: "⚽", coin_cost: 39, animation_class: "gift-soccer", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 21, name: "Groove Guitar", emoji: "🎸", coin_cost: 99, animation_class: "gift-groove-guitar", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 22, name: "Community Style", emoji: "🕶️", coin_cost: 99, animation_class: "gift-community", category: "gifts", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 23, name: "Mishka Bear", emoji: "🐻", coin_cost: 100, animation_class: "gift-mishka", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 24, name: "Hand Heart", emoji: "🫶", coin_cost: 100, animation_class: "gift-hand-heart", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 25, name: "Tempo Flute", emoji: "🪈", coin_cost: 149, animation_class: "gift-tempo-flute", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 26, name: "Hearts", emoji: "💕", coin_cost: 199, animation_class: "gift-hearts", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 27, name: "Cheering Towel", emoji: "🎽", coin_cost: 299, animation_class: "gift-towel", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 28, name: "Good Night", emoji: "🌙", coin_cost: 399, animation_class: "gift-good-night", category: "gifts", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 29, name: "Capibara Dance", emoji: "🦫", coin_cost: 399, animation_class: "gift-capibara", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 30, name: "Match Master", emoji: "🎯", coin_cost: 500, animation_class: "gift-match-master", category: "gifts", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 31, name: "Galaxy", emoji: "✨", coin_cost: 1000, animation_class: "gift-galaxy", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 32, name: "Matchtacular", emoji: "🎮", coin_cost: 1000, animation_class: "gift-matchtacular", category: "gifts", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 33, name: "Tom Thunderfoot", emoji: "🥁", coin_cost: 2499, animation_class: "gift-thunder", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 34, name: "Match Maniac", emoji: "🎲", coin_cost: 2999, animation_class: "gift-match-maniac", category: "gifts", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: null },
+
+  // ─── Interactive Gifts (category: "interactive") ─────────────────────────────
+  { id: 35, name: "Interstellar Trek", emoji: "🚀", coin_cost: 14999, animation_class: "gift-interstellar", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 36, name: "Stadium", emoji: "🏟️", coin_cost: 15999, animation_class: "gift-stadium", category: "interactive", is_lucky: false, is_limited: true, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 37, name: "Amusement Park", emoji: "🎡", coin_cost: 17000, animation_class: "gift-amusement", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 38, name: "Castle Fantasy", emoji: "🏰", coin_cost: 20000, animation_class: "gift-castle", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
+  { id: 42, name: "Fighter Jets", emoji: "✈️", coin_cost: 8000, animation_class: "gift-fighter-jets", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/424449d4606f055b.mp4` },
+  { id: 43, name: "Dino Roar", emoji: "🦖", coin_cost: 12000, animation_class: "gift-dino-roar", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/721e2d3275e6c211.mp4` },
+  { id: 45, name: "DJ Lion", emoji: "🎧", coin_cost: 15000, animation_class: "gift-dj-lion", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/b7a5b2bdbdd98663.mp4` },
+  { id: 46, name: "Dream Castle", emoji: "🏰", coin_cost: 20000, animation_class: "gift-castle", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/41684a731489dc8f.mp4` },
+  { id: 47, name: "Screaming Eagle", emoji: "🦅", coin_cost: 30000, animation_class: "gift-screaming-eagle", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/00947de3ffd93cc1.mp4` },
+  { id: 48, name: "Football Superwin", emoji: "🏈", coin_cost: 20000, animation_class: "gift-football-superwin", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/efe991dbad9a4b54.mp4` },
+  { id: 49, name: "Elephant", emoji: "🐘", coin_cost: 10000, animation_class: "gift-elephant", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/cfd63d61fb1e3bab.mp4` },
+  { id: 63, name: "Mardi Gras Float", emoji: "🎭", coin_cost: 110000, animation_class: "gift-mardi-gras-float", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/9d0782006ea081aa.mp4` },
+  { id: 82, name: "Clown", emoji: "🤡", coin_cost: 3000, animation_class: "gift-clown-cinematic", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/a67ad455f1b842eb.mp4` },
+
+  // ─── Exclusive Gifts (category: "exclusive") ─────────────────────────────────
+  { id: 39, name: "Adam's Dream", emoji: "🌍", coin_cost: 25999, animation_class: "gift-adams-dream", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: null },
+  { id: 40, name: "Dragon Flame", emoji: "🔥", coin_cost: 26999, animation_class: "gift-dragon-flame", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: null },
+  { id: 41, name: "Leon and Lion", emoji: "🦁", coin_cost: 34000, animation_class: "gift-leon-lion", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: null },
+  { id: 44, name: "Archangel Michael", emoji: "⚔️", coin_cost: 750000, animation_class: "gift-archangel-michael", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: null },
+  { id: 50, name: "Angel", emoji: "😇", coin_cost: 49999, animation_class: "gift-angel", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: `${CDN_BASE}/0e23a26c03156993.mp4` },
+  { id: 51, name: "Magical Unicorn", emoji: "🦄", coin_cost: 60000, animation_class: "gift-magical-unicorn", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/wingman/7fe9a122-157e-48c4-a338-be0912ddbb1f/attachments/76f49b2a14db4521813583b6dcace154_magical_unicorn.mov" },
+  { id: 52, name: "Dragon's Lair", emoji: "🐲", coin_cost: 37999, animation_class: "gift-dragons-lair-cinematic", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: null },
+  { id: 53, name: "Whale", emoji: "🐋", coin_cost: 39999, animation_class: "gift-whale-cinematic", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: `${CDN_BASE}/6fba9ad4b8a7cb09.mp4` },
+  { id: 54, name: "Dragon Skull Castle", emoji: "🐉", coin_cost: 44999, animation_class: "gift-dragon-skull-cinematic", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: null },
+  { id: 55, name: "Supercar Spaceship", emoji: "🚀", coin_cost: 149999, animation_class: "gift-supercar-spaceship", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: `${CDN_BASE}/e08f836ffc87f503.mp4` },
+  { id: 56, name: "The Most High", emoji: "🖤", coin_cost: 75000, animation_class: "gift-the-most-high", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: "https://customer-assets-agu9un31.emergentagent.net/wingman/7fe9a122-157e-48c4-a338-be0912ddbb1f/attachments/c28581aa3feb4b72be64c50095adc47a_black_god_part2.mov" },
+  { id: 57, name: "God on Throne", emoji: "🪑", coin_cost: 80000, animation_class: "gift-god-throne", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: `${CDN_BASE}/d2e18806e6fbfc08.mp4` },
+  { id: 58, name: "Airavata", emoji: "🐘", coin_cost: 90000, animation_class: "gift-airavata", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: null },
+  { id: 59, name: "Archangel Gabriel", emoji: "👼", coin_cost: 100000, animation_class: "gift-archangel-gabriel", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: null },
+  { id: 60, name: "Ultra Warrior", emoji: "⚔️", coin_cost: 110000, animation_class: "gift-ultra-warrior", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: `${CDN_BASE}/ae4d3060cf2fcbc8.mp4` },
+  { id: 61, name: "Emerald Castle", emoji: "🏰", coin_cost: 120000, animation_class: "gift-emerald-castle", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: `${CDN_BASE}/aeb16ed0a4050e9e.mp4` },
+  { id: 62, name: "Mardi Gras Castle", emoji: "🎭", coin_cost: 130000, animation_class: "gift-mardi-gras", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: `${CDN_BASE}/75e5df38bfe8002a.mp4` },
+  { id: 64, name: "Dreams Castle", emoji: "👑", coin_cost: 140000, animation_class: "gift-dreams-castle", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: null },
+  { id: 65, name: "Heavens Crown", emoji: "✨", coin_cost: 145000, animation_class: "gift-heavens-crown", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: null },
+  { id: 66, name: "The Second Coming", emoji: "✝️", coin_cost: 150000, animation_class: "gift-second-coming", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: false, animation_url: `${CDN_BASE}/0f1fc6af86b1a973.mp4` },
+
+  // ─── New Standard Gifts ──────────────────────────────────────────────────────
+  { id: 67, name: "Sword", emoji: "⚔️", coin_cost: 50, animation_class: "gift-sword", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 68, name: "Kiss", emoji: "💋", coin_cost: 15, animation_class: "gift-kiss", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 69, name: "Corgi", emoji: "🐕", coin_cost: 60, animation_class: "gift-corgi", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 70, name: "Boxing Glove", emoji: "🥊", coin_cost: 35, animation_class: "gift-boxing-glove", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 71, name: "Sunglasses", emoji: "🕶️", coin_cost: 25, animation_class: "gift-sunglasses", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 72, name: "Dancer", emoji: "💃", coin_cost: 99, animation_class: "gift-dancer", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 73, name: "Cute Car", emoji: "🚗", coin_cost: 50, animation_class: "gift-cute-car", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 74, name: "Rio", emoji: "🌴", coin_cost: 150, animation_class: "gift-rio", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 75, name: "Barco", emoji: "⛵", coin_cost: 80, animation_class: "gift-barco", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 76, name: "Mermaid", emoji: "🧜", coin_cost: 200, animation_class: "gift-mermaid", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 77, name: "Bear", emoji: "🐻", coin_cost: 45, animation_class: "gift-bear", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 78, name: "Giraffe", emoji: "🦒", coin_cost: 55, animation_class: "gift-giraffe", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 79, name: "Tomato", emoji: "🍅", coin_cost: 5, animation_class: "gift-tomato", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 80, name: "Bucket of Water", emoji: "🪳", coin_cost: 10, animation_class: "gift-bucket-of-water", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+  { id: 81, name: "Egg", emoji: "🥚", coin_cost: 5, animation_class: "gift-egg", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: null },
+
+  // ─── Lucky Gifts (category: "lucky") ─────────────────────────────────────────
+  { id: 83, name: "Lucky Fairy", emoji: "🧚", coin_cost: 1, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 1, max_diamond_reward: 100 },
+  { id: 84, name: "Lucky Clover", emoji: "🍀", coin_cost: 3, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 5, max_diamond_reward: 300 },
+  { id: 85, name: "Lucky Star", emoji: "🌟", coin_cost: 5, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 10, max_diamond_reward: 500 },
+  { id: 86, name: "Lucky Butterfly", emoji: "🦋", coin_cost: 10, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 20, max_diamond_reward: 1000 },
+  { id: 87, name: "Lucky Rainbow", emoji: "🌈", coin_cost: 20, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 50, max_diamond_reward: 2000 },
+  { id: 88, name: "Lucky Unicorn", emoji: "🦄", coin_cost: 25, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 100, max_diamond_reward: 5000 },
+  { id: 89, name: "Lucky Dragon", emoji: "🐉", coin_cost: 50, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 200, max_diamond_reward: 10000 },
+  { id: 90, name: "Lucky Orb", emoji: "🔮", coin_cost: 100, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 500, max_diamond_reward: 50000 },
 ];
 
-const GIFT_TYPES = [
-  { id: 1, name: "Rose", emoji: "🌹", coin_cost: 10, animation_class: "gift-rose", category: "gifts", is_lucky: false, is_limited: false, is_exclusive: false, is_new: false, animation_url: null },
-  { id: 2, name: "Mic", emoji: "🎤", coin_cost: 25, animation_class: "gift-mic", category: "gifts" },
-  { id: 3, name: "Guitar", emoji: "🎸", coin_cost: 50, animation_class: "gift-guitar", category: "gifts" },
-  { id: 4, name: "Crown", emoji: "👑", coin_cost: 100, animation_class: "gift-crown", category: "gifts" },
-  { id: 5, name: "Diamond", emoji: "💎", coin_cost: 500, animation_class: "gift-diamond", category: "gifts" },
-  { id: 6, name: "Rocket", emoji: "🚀", coin_cost: 1000, animation_class: "gift-rocket", category: "gifts" },
-  { id: 7, name: "Fire", emoji: "🔥", coin_cost: 75, animation_class: "gift-fire", category: "gifts" },
-  { id: 8, name: "Trophy", emoji: "🏆", coin_cost: 250, animation_class: "gift-trophy", category: "gifts" },
-  { id: 9, name: "Lion Roar", emoji: "🦁", coin_cost: 75000, animation_class: "gift-lion-cinematic", category: "gifts", animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/046a1834d48c46df.mp4" },
-  { id: 10, name: "Dragon Fire", emoji: "🐉", coin_cost: 20000, animation_class: "gift-dragon-cinematic", category: "gifts", animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/413c39b54df4f333.mp4" },
-  { id: 15, name: "Heart Me", emoji: "❤️", coin_cost: 1, animation_class: "gift-heart-me", category: "gifts" },
-  { id: 16, name: "Music Note", emoji: "🎵", coin_cost: 5, animation_class: "gift-music-note", category: "gifts" },
-  { id: 35, name: "Interstellar Trek", emoji: "🚀", coin_cost: 14999, animation_class: "gift-interstellar", category: "interactive" },
-  { id: 44, name: "Archangel Michael", emoji: "⚔️", coin_cost: 750000, animation_class: "gift-archangel-michael", category: "exclusive" },
-  { id: 66, name: "The Second Coming", emoji: "✝️", coin_cost: 150000, animation_class: "gift-second-coming", category: "exclusive" },
-  { id: 83, name: "Lucky Fairy", emoji: "🧚", coin_cost: 1, animation_class: "gift-lucky", category: "lucky", is_lucky: true },
-];
+// Legacy cinematic gifts array (kept for backwards compatibility with old clients)
+const gifts = GIFT_TYPES.filter(g => g.animation_url !== null).map(g => ({
+  id: g.id,
+  name: g.name,
+  emoji: g.emoji,
+  coin_cost: g.coin_cost,
+  animationUrl: g.animation_url,
+}));
 
 let streams = [
   { id: 1, title: "Friday Night Vibes", status: "live", viewer_count: 1243, artist_id: 1, artist_name: "DJ Nova", genre: "Hip-Hop", category: "Music", featured: true, gift_total: 4500, cf_live_input_uid: null, thumbnail_url: null, started_at: new Date().toISOString() },
@@ -149,7 +222,6 @@ app.post("/admin/moderation/:id/action", adminAuth, (req, res) => {
   const flag = moderationFlags.find(f => f.id === Number(req.params.id));
   if (!flag) return res.status(404).json({ error: "Flag not found" });
   flag.status = "actioned";
-  // If action is to end stream, do that too
   if (req.body.endStream) {
     const stream = streams.find(s => s.id === flag.stream_id);
     if (stream) stream.status = "ended";
@@ -163,9 +235,9 @@ app.post("/admin/gift", adminAuth, (req, res) => {
   if (!streamId || !giftTypeId || !artistId) {
     return res.status(400).json({ error: "streamId, giftTypeId, and artistId required" });
   }
-  const gift = gifts.find(g => g.id === giftTypeId) || GIFT_TYPES.find(g => g.id === giftTypeId);
+  const gift = GIFT_TYPES.find(g => g.id === giftTypeId);
   if (!gift) return res.status(404).json({ error: "Gift type not found" });
-  
+
   const qty = quantity || 1;
   const event = {
     id: nextGiftEventId++,
@@ -181,7 +253,6 @@ app.post("/admin/gift", adminAuth, (req, res) => {
   };
   giftEvents.push(event);
 
-  // Emit the gift animation to the stream
   const stream = streams.find(s => s.id === streamId);
   if (stream) {
     stream.gift_total = (stream.gift_total || 0) + qty;
@@ -190,7 +261,7 @@ app.post("/admin/gift", adminAuth, (req, res) => {
     username: "🎁 Share Me Live (Promo)",
     giftName: gift.name,
     giftEmoji: gift.emoji,
-    animationUrl: gift.animationUrl || gift.animation_url || null,
+    animationUrl: gift.animation_url || null,
     isPromo: true,
   });
 
@@ -238,33 +309,75 @@ app.get("/admin/artists", adminAuth, (req, res) => {
 
 // GET /admin/gifts — all gift types (for dropdown)
 app.get("/admin/gifts", adminAuth, (req, res) => {
-  res.json([...gifts, ...GIFT_TYPES]);
+  res.json(GIFT_TYPES);
 });
 
 // ─── REST Routes ─────────────────────────────────────────────────────────────
 
-// Gifts
-app.get("/api/gifts", (req, res) => {
-  res.json(gifts);
+// Gift Types - full catalog (all 90 gifts)
+app.get("/api/gift-types", (req, res) => {
+  let result = [...GIFT_TYPES];
+  if (req.query.category) {
+    result = result.filter(g => g.category === req.query.category);
+  }
+  if (req.query.is_lucky === "true") {
+    result = result.filter(g => g.is_lucky === true);
+  }
+  if (req.query.is_new === "true") {
+    result = result.filter(g => g.is_new === true);
+  }
+  if (req.query.is_exclusive === "true") {
+    result = result.filter(g => g.is_exclusive === true);
+  }
+  res.json(result);
 });
 
+// Gifts - serves full catalog (primary endpoint for app)
+app.get("/api/gifts", (req, res) => {
+  let result = [...GIFT_TYPES];
+  if (req.query.category) {
+    result = result.filter(g => g.category === req.query.category);
+  }
+  if (req.query.is_lucky === "true") {
+    result = result.filter(g => g.is_lucky === true);
+  }
+  if (req.query.cinematic === "true") {
+    result = result.filter(g => g.animation_url !== null);
+  }
+  res.json(result);
+});
+
+// Send a gift (with lucky gift diamond reward calculation)
 app.post("/api/gifts", (req, res) => {
   const { streamId, giftTypeId, senderName, coins } = req.body;
   if (!streamId || !giftTypeId || !senderName) {
     return res.status(400).json({ error: "streamId, giftTypeId, and senderName required" });
   }
-  const gift = gifts.find((g) => g.id === giftTypeId);
+  const gift = GIFT_TYPES.find((g) => g.id === giftTypeId);
   if (!gift) {
     return res.status(404).json({ error: "Gift type not found" });
   }
+
+  // Calculate diamond reward for lucky gifts
+  let diamondReward = null;
+  if (gift.is_lucky && gift.min_diamond_reward && gift.max_diamond_reward) {
+    diamondReward = Math.floor(
+      Math.random() * (gift.max_diamond_reward - gift.min_diamond_reward + 1)
+    ) + gift.min_diamond_reward;
+  }
+
   const payload = {
     username: senderName,
     giftName: gift.name,
     giftEmoji: gift.emoji,
-    animationUrl: gift.animationUrl,
+    animationUrl: gift.animation_url || null,
+    animationClass: gift.animation_class,
+    isLucky: gift.is_lucky,
+    diamondReward: diamondReward,
+    coinCost: gift.coin_cost,
   };
   io.to(`stream_${streamId}`).emit("gift_animation", payload);
-  
+
   // Track gift event
   giftEvents.push({
     id: nextGiftEventId++,
@@ -275,10 +388,12 @@ app.post("/api/gifts", (req, res) => {
     artist_id: null,
     quantity: 1,
     is_promo: false,
+    is_lucky: gift.is_lucky,
+    diamond_reward: diamondReward,
     coin_cost: gift.coin_cost,
     created_at: new Date().toISOString(),
   });
-  
+
   res.json({ success: true, gift: payload });
 });
 
@@ -390,7 +505,7 @@ app.get("/api/battles", (req, res) => {
 
 // Health
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", version: "2.1.0-admin", uptime: process.uptime() });
+  res.json({ status: "ok", version: "2.2.0-90gifts", uptime: process.uptime(), gift_count: GIFT_TYPES.length });
 });
 
 // ─── Socket.io Events ────────────────────────────────────────────────────────
@@ -448,6 +563,9 @@ if (require.main === module) {
     console.log(`  REST API: http://localhost:${PORT}/api`);
     console.log(`  Admin API: http://localhost:${PORT}/admin`);
     console.log(`  Socket.io path: /api/socket.io`);
+    console.log(`  Total gift types: ${GIFT_TYPES.length}`);
+    console.log(`  Lucky gifts: ${GIFT_TYPES.filter(g => g.is_lucky).length}`);
+    console.log(`  Cinematic gifts (with video): ${GIFT_TYPES.filter(g => g.animation_url).length}`);
   });
 }
 
