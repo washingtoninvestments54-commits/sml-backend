@@ -319,6 +319,48 @@ app.get("/admin/gifts", adminAuth, (req, res) => {
 
 // ─── REST Routes ─────────────────────────────────────────────────────────────
 
+// ─── Coin Purchase Endpoints ─────────────────────────────────────────────────
+
+// In-memory user balances (production: use DB)
+const userBalances = {};
+
+// POST /api/coins/credit — credit coins after successful IAP (iOS RevenueCat / Android Stripe)
+app.post("/api/coins/credit", (req, res) => {
+  const { coins, receipt, userId } = req.body;
+  if (!coins || coins <= 0) {
+    return res.status(400).json({ error: "Invalid coin amount" });
+  }
+  // In production: verify receipt with RevenueCat/Apple/Google
+  // For now, trust the client and credit coins
+  const uid = userId || receipt || "anonymous";
+  userBalances[uid] = (userBalances[uid] || 0) + coins;
+  res.json({ success: true, newBalance: userBalances[uid], credited: coins });
+});
+
+// POST /api/coins/checkout — create Stripe checkout session (Android)
+app.post("/api/coins/checkout", (req, res) => {
+  const { packageId, coins, amount } = req.body;
+  if (!packageId || !coins || !amount) {
+    return res.status(400).json({ error: "packageId, coins, and amount required" });
+  }
+  // In production: create a real Stripe Checkout session
+  // For demo: return success without a URL (client handles fallback)
+  res.json({
+    success: true,
+    message: "Stripe checkout not configured — coins credited directly in demo mode",
+    packageId,
+    coins,
+    amount,
+  });
+});
+
+// GET /api/coins/balance — get user coin balance
+app.get("/api/coins/balance", (req, res) => {
+  const userId = req.query.userId || "anonymous";
+  res.json({ balance: userBalances[userId] || 0 });
+});
+
+
 // Gift Types - full catalog (all 90 gifts)
 app.get("/api/gift-types", (req, res) => {
   let result = [...GIFT_TYPES];
