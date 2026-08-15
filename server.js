@@ -126,6 +126,8 @@ const GIFT_TYPES = [
   { id: 90, name: "Lucky Orb", emoji: "🔮", coin_cost: 100, animation_class: "gift-lucky", category: "lucky", is_lucky: true, is_limited: false, is_exclusive: false, is_new: false, animation_url: null, min_diamond_reward: 500, max_diamond_reward: 50000 },
   { id: 93, name: "Adam's Dream", emoji: "🌟", coin_cost: 90000, animation_class: "gift-adams-dream", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/wingman/7fe9a122-157e-48c4-a338-be0912ddbb1f/attachments/b203d8727c1c478b90321b8501e6999d_adams_dream.mp4" },
   { id: 94, name: "Ferris Wheel", emoji: "🎡", coin_cost: 8000, animation_class: "gift-ferris-wheel", category: "interactive", is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: `${CDN_BASE}/df5445a3569b2fa5.mp4` },
+  { id: 95, name: "Winged Lion Castle", emoji: "🦁", coin_cost: 10000, animation_class: "gift-winged-lion-castle", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/88ee2863f2ec9c88.mp4" },
+  { id: 96, name: "Iceman Elephant", emoji: "🐘", coin_cost: 25000, animation_class: "gift-iceman-elephant", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/42e90c990cdcebbd.mp4" },
 ];
 
 // Legacy cinematic gifts array (kept for backwards compatibility with old clients)
