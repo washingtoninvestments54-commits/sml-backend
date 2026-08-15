@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.sharemelive.app",
+      "sha256_cert_fingerprints": [
+        "7F:DD:45:ED:03:48:1F:BB:5C:B3:7E:7D:E4:4E:F6:AC:B3:CF:0D:B8:C0:FC:51:EB:44:21:46:23:68:F2:44:61",
+        "C5:12:8A:DA:6F:A5:42:11:30:F8:39:CC:1A:16:7B:F8:5A:16:9A:55:03:9A:67:1B:58:08:F2:F3:81:8F:83:FE"
+      ]
+    }
+  }
+]

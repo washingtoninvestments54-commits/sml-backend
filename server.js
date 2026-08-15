@@ -15,6 +15,7 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 app.use('/gifts', express.static(path.join(__dirname, 'public/gifts')));
+app.use('/.well-known', express.static(path.join(__dirname, 'public/.well-known')));
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
