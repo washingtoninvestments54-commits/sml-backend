@@ -620,3 +620,45 @@ if (require.main === module) {
 }
 
 module.exports = { app, server, io };
+
+// ─── Revenue & Compensation Constants ────────────────────────────────────────
+const PLATFORM_SHARE = 0.40;           // Platform keeps 40% of all gift revenue
+const STREAMER_BASE_SHARE = 0.60;      // Streamers earn from 60% pool
+
+// Streamer tier multipliers (based on hours streamed/month)
+const STREAMER_TIERS = [
+  { name: 'Bronze',  minHours: 0,   maxHours: 50,  share: 0.55 },
+  { name: 'Silver',  minHours: 51,  maxHours: 150, share: 0.60 },
+  { name: 'Gold',    minHours: 151, maxHours: 300, share: 0.63 },
+  { name: 'Diamond', minHours: 301, maxHours: Infinity, share: 0.65 },
+];
+
+// Weekly base guarantee
+const WEEKLY_BASE_GUARANTEE_USD = 20.00;  // $20/week guaranteed
+const WEEKLY_BASE_MIN_HOURS = 10;         // Minimum hours/week to qualify
+
+// Super chat splits (same as gift splits)
+const SUPER_CHAT_PLATFORM_SHARE = 0.40;
+const SUPER_CHAT_STREAMER_SHARE = 0.60;
+
+// Agency coin reseller program
+const AGENCY_COIN_RESELLER_COMMISSION = 0.30;  // Agency earns 30% of coins they sell
+const PLATFORM_COIN_RESELLER_SHARE = 0.70;     // Platform keeps 70% of agency coin sales
+const AGENCY_MAX_STREAMER_COMMISSION = 0.15;   // Max agency can take from streamer (15%)
+
+// Helper: get streamer tier by monthly hours
+function getStreamerTier(monthlyHours) {
+  return STREAMER_TIERS.find(t => monthlyHours >= t.minHours && monthlyHours <= t.maxHours) || STREAMER_TIERS[0];
+}
+
+// Helper: calculate gift payout
+function calculateGiftPayout(coinCost, monthlyHours = 0) {
+  const tier = getStreamerTier(monthlyHours);
+  const totalUsd = coinCost * 0.01; // 1 coin = $0.01 ($1 = 100 coins)
+  return {
+    platformEarns: +(totalUsd * PLATFORM_SHARE).toFixed(4),
+    streamerEarns: +(totalUsd * tier.share).toFixed(4),
+    tier: tier.name,
+    streamerSharePct: tier.share,
+  };
+}
