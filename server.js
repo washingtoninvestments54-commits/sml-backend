@@ -652,6 +652,13 @@ io.on("connection", (socket) => {
 const PORT = process.env.PORT || 3000;
 
 if (require.main === module) {
+  // Auto-migrate DB on startup
+  const { Pool } = require("pg");
+  if (process.env.DATABASE_URL) {
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+    pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS lion_me_count INTEGER DEFAULT 0").then(() => console.log("lion_me_count column ready")).catch(() => {});
+  }
+
   server.listen(PORT, () => {
     console.log(`Share Me Live 2.0 Backend running on port ${PORT}`);
     console.log(`  REST API: http://localhost:${PORT}/api`);
