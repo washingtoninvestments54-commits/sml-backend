@@ -891,3 +891,5 @@ GIFT_TYPES.push(
 GIFT_TYPES.push(
   { id: 105, name: "Amanda Warrior Princess", emoji: "⚔️", coin_cost: 37000, animation_class: "gift-amanda-warrior", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/3ed706dfb66e1919.mp4" }
 );
+
+// Last updated: Tue Aug 18 20:14:53 UTC 2026
