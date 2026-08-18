@@ -777,3 +777,8 @@ GIFT_TYPES.push(
   { id: 103, name: "Queen of Heaven", emoji: "👸", coin_cost: 35000, animation_class: "gift-queen-of-heaven", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/3bf60602d60b9895.mp4" },
   { id: 104, name: "Queen Natalia",   emoji: "👑", coin_cost: 27000, animation_class: "gift-queen-natalia",   category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/c1e4fb10480b4d84.mp4" }
 );
+
+// Amanda Warrior Princess
+GIFT_TYPES.push(
+  { id: 105, name: "Amanda Warrior Princess", emoji: "⚔️", coin_cost: 37000, animation_class: "gift-amanda-warrior", category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true, is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/3ed706dfb66e1919.mp4" }
+);
