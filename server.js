@@ -23,6 +23,30 @@ app.use('/.well-known', express.static(path.join(__dirname, 'public/.well-known'
 // CDN base for cinematic gift videos
 const CDN_BASE = "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos";
 
+// ─── Entrance Animations (Lion Me levels) ────────────────────────────────────
+const ENTRANCE_ANIMATIONS = {
+  10:  'https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/b212b650a6b5a90f.mp4',
+  20:  'https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/a0670d30b91c25a0.mp4',
+  30:  'https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/e434220ad49b9015.mp4',
+  40:  'https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/a05e371512c0f8da.mp4',
+  50:  'https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/e86e2e8d84cd1496.mp4',
+  100: 'https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/418a6584605381fc.mp4',
+  250: 'https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/705c6c32361d7933.mp4',
+  500: 'https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/fc1d2c7d2cb6c2a1.mp4',
+};
+
+function getEntranceAnimation(lionMeCount) {
+  if (lionMeCount >= 500) return ENTRANCE_ANIMATIONS[500];
+  if (lionMeCount >= 250) return ENTRANCE_ANIMATIONS[250];
+  if (lionMeCount >= 100) return ENTRANCE_ANIMATIONS[100];
+  if (lionMeCount >= 50)  return ENTRANCE_ANIMATIONS[50];
+  if (lionMeCount >= 40)  return ENTRANCE_ANIMATIONS[40];
+  if (lionMeCount >= 30)  return ENTRANCE_ANIMATIONS[30];
+  if (lionMeCount >= 20)  return ENTRANCE_ANIMATIONS[20];
+  if (lionMeCount >= 10)  return ENTRANCE_ANIMATIONS[10];
+  return null; // levels 1-9 get name banner only (handled in frontend)
+}
+
 
 // Full 90-gift database with all categories, lucky gifts, and cinematic URLs
 const GIFT_TYPES = [
@@ -607,7 +631,12 @@ app.get("/api/users/:userId/lion-me-count", (req, res) => {
 io.on("connection", (socket) => {
   let currentStream = null;
 
-  socket.on("join_stream", (streamId) => {
+  socket.on("join_stream", (data) => {
+    // Support both primitive streamId and object {streamId, userId, username}
+    const streamId = typeof data === 'object' ? data.streamId : data;
+    const userId = typeof data === 'object' ? data.userId : null;
+    const username = typeof data === 'object' ? data.username : null;
+
     const room = `stream_${streamId}`;
     if (currentStream) {
       socket.leave(`stream_${currentStream}`);
@@ -621,6 +650,21 @@ io.on("connection", (socket) => {
     if (!streamViewers[streamId]) streamViewers[streamId] = 0;
     streamViewers[streamId]++;
     io.to(room).emit("viewer_count", streamViewers[streamId]);
+
+    // Broadcast entrance animation to all viewers in stream
+    if (userId || username) {
+      const lionMeCount = lionMeCounts[userId] || 0;
+      const animationUrl = getEntranceAnimation(lionMeCount);
+      const lionTier = lionMeCount >= 500 ? 500 : lionMeCount >= 250 ? 250 : lionMeCount >= 100 ? 100 : lionMeCount >= 50 ? 50 : lionMeCount >= 40 ? 40 : lionMeCount >= 30 ? 30 : lionMeCount >= 20 ? 20 : lionMeCount >= 10 ? 10 : 0;
+
+      io.to(room).emit("user_entrance", {
+        userId: userId,
+        username: username || "Anonymous",
+        lionMeCount,
+        lionTier,
+        animationUrl, // null for levels < 10
+      });
+    }
   });
 
   socket.on("chat_message", (data) => {
