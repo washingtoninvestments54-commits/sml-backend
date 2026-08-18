@@ -1,4 +1,5 @@
 require("dotenv").config();
+// DB: ALTER TABLE users ADD COLUMN IF NOT EXISTS lion_me_count INTEGER DEFAULT 0;
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -558,6 +559,49 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", version: "2.2.0-90gifts", uptime: process.uptime(), gift_count: GIFT_TYPES.length });
 });
 
+
+// ─── Lion Me (free tap mechanic) ─────────────────────────────────────────────
+
+// In-memory lion me counts (production: use users table)
+const lionMeCounts = {};
+
+// POST /api/streams/:streamId/lion-me
+app.post("/api/streams/:streamId/lion-me", (req, res) => {
+  try {
+    const userId = req.body.userId || "anonymous";
+    const { streamId } = req.params;
+    const { count = 1 } = req.body;
+    
+    const batchCount = Math.min(Math.max(count, 1), 10);
+    
+    // Increment user's total lion me count
+    lionMeCounts[userId] = (lionMeCounts[userId] || 0) + batchCount;
+    const newCount = lionMeCounts[userId];
+    
+    // Calculate unlocked tier
+    const lionTier = newCount >= 50 ? 6 : newCount >= 40 ? 5 : newCount >= 30 ? 4 : newCount >= 20 ? 3 : newCount >= 10 ? 2 : 1;
+    
+    // Broadcast to all viewers in stream
+    io.to(`stream_${streamId}`).emit("lion_me", {
+      userId,
+      username: req.body.username || "Anonymous",
+      count: batchCount,
+      totalCount: newCount,
+      lionTier
+    });
+    
+    res.json({ success: true, lionMeCount: newCount, lionTier });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/users/:userId/lion-me-count
+app.get("/api/users/:userId/lion-me-count", (req, res) => {
+  const count = lionMeCounts[req.params.userId] || 0;
+  res.json({ lionMeCount: count });
+});
+
 // ─── Socket.io Events ────────────────────────────────────────────────────────
 
 io.on("connection", (socket) => {
@@ -666,12 +710,12 @@ function calculateGiftPayout(coinCost, monthlyHours = 0) {
 // ─── Lion Gift Collection ─────────────────────────────────────────────────────
 // Added 2026-08-18 — 6 cinematic lion gifts
 const LION_GIFTS = [
-  { id: 97,  name: "Lion Cub",        emoji: "🦁", coin_cost: 4000,  animation_class: "gift-lion-cub",        category: "popular",   is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/b14211190fdcd799.mp4" },
-  { id: 98,  name: "Pride",           emoji: "🦁", coin_cost: 8000,  animation_class: "gift-pride",           category: "popular",   is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/e34eb8df2b4ffa6d.mp4" },
-  { id: 99,  name: "Lion King",       emoji: "🦁", coin_cost: 12000, animation_class: "gift-lion-king",       category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true,  is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/2d56e2a59e0c5f5a.mp4" },
-  { id: 100, name: "Lioness",         emoji: "🦁", coin_cost: 22000, animation_class: "gift-lioness",         category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true,  is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/351edc9ec096ef07.mp4" },
-  { id: 101, name: "Golden Lion",     emoji: "🦁", coin_cost: 20000, animation_class: "gift-golden-lion",     category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true,  is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/09353ae146ab5efa.mp4" },
-  { id: 102, name: "Lion of Heaven",  emoji: "🦁", coin_cost: 44000, animation_class: "gift-lion-of-heaven",  category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true,  is_new: true, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/41da4187fc98e4c8.mp4" },
+  { id: 97,  name: "Lion Cub",        emoji: "🦁", coin_cost: 4000,  animation_class: "gift-lion-cub",        category: "popular",   is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, unlock_tier: 1, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/b14211190fdcd799.mp4" },
+  { id: 98,  name: "Pride",           emoji: "🦁", coin_cost: 8000,  animation_class: "gift-pride",           category: "popular",   is_lucky: false, is_limited: false, is_exclusive: false, is_new: true, unlock_tier: 10, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/e34eb8df2b4ffa6d.mp4" },
+  { id: 99,  name: "Lion King",       emoji: "🦁", coin_cost: 12000, animation_class: "gift-lion-king",       category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true,  is_new: true, unlock_tier: 20, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/2d56e2a59e0c5f5a.mp4" },
+  { id: 100, name: "Lioness",         emoji: "🦁", coin_cost: 22000, animation_class: "gift-lioness",         category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true,  is_new: true, unlock_tier: 30, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/351edc9ec096ef07.mp4" },
+  { id: 101, name: "Golden Lion",     emoji: "🦁", coin_cost: 20000, animation_class: "gift-golden-lion",     category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true,  is_new: true, unlock_tier: 40, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/09353ae146ab5efa.mp4" },
+  { id: 102, name: "Lion of Heaven",  emoji: "🦁", coin_cost: 44000, animation_class: "gift-lion-of-heaven",  category: "exclusive", is_lucky: false, is_limited: false, is_exclusive: true,  is_new: true, unlock_tier: 50, animation_url: "https://customer-assets-agu9un31.emergentagent.net/jobs/7fe9a122-157e-48c4-a338-be0912ddbb1f/videos/41da4187fc98e4c8.mp4" },
 ];
 
 // Merge lion gifts into GIFT_TYPES
