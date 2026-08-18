@@ -389,6 +389,92 @@ app.get("/api/coins/balance", (req, res) => {
 });
 
 
+// ─── Agency System ───────────────────────────────────────────────────────────
+
+function generateAgencyCode(agencyName) {
+  const prefix = agencyName.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, 'X').padEnd(4, 'X');
+  const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `${prefix}-${suffix}`;
+}
+
+// Agency signup
+app.post('/api/agencies/signup', async (req, res) => {
+  try {
+    const { agency_name, owner_name, email, phone, tier } = req.body;
+    
+    if (!agency_name || !owner_name || !email) {
+      return res.status(400).json({ error: 'Agency name, owner name, and email are required' });
+    }
+    
+    const agency_code = generateAgencyCode(agency_name);
+    
+    // Set commission rate by tier
+    const commissionRates = { iniciante: 0.02, pro: 0.04, elite: 0.06 };
+    const commission_rate = commissionRates[tier] || 0.02;
+    
+    const { Pool } = require('pg');
+    if (!process.env.DATABASE_URL) {
+      return res.status(500).json({ error: 'Database not configured' });
+    }
+    const db = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+    
+    const result = await db.query(
+      `INSERT INTO agencies (agency_name, owner_name, email, phone, agency_code, tier, commission_rate)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [agency_name, owner_name, email, phone || null, agency_code, tier || 'iniciante', commission_rate]
+    );
+    
+    const agency = result.rows[0];
+    
+    res.json({
+      success: true,
+      message: 'Agency registered successfully!',
+      agency_code: agency.agency_code,
+      tier: agency.tier,
+      commission_rate: (agency.commission_rate * 100) + '%',
+    });
+  } catch (err) {
+    if (err.code === '23505') return res.status(400).json({ error: 'Email already registered' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Agency code lookup (for streamers/viewers to validate a code)
+app.get('/api/agencies/code/:code', async (req, res) => {
+  try {
+    const { Pool } = require('pg');
+    if (!process.env.DATABASE_URL) return res.status(500).json({ error: 'Database not configured' });
+    const db = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+    const result = await db.query('SELECT agency_name, tier, status FROM agencies WHERE agency_code = $1', [req.params.code.toUpperCase()]);
+    if (!result.rows[0]) return res.status(404).json({ error: 'Invalid agency code' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Agency dashboard
+app.get('/api/agencies/dashboard/:code', async (req, res) => {
+  try {
+    const { Pool } = require('pg');
+    if (!process.env.DATABASE_URL) return res.status(500).json({ error: 'Database not configured' });
+    const db = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+    const result = await db.query(
+      `SELECT a.*,
+       COUNT(DISTINCT u.id) as active_streamers
+       FROM agencies a
+       LEFT JOIN users u ON u.agency_code = a.agency_code
+       WHERE a.agency_code = $1
+       GROUP BY a.id`,
+      [req.params.code.toUpperCase()]
+    );
+    if (!result.rows[0]) return res.status(404).json({ error: 'Agency not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Gift Types - full catalog (all 90 gifts)
 app.get("/api/gift-types", (req, res) => {
   let result = [...GIFT_TYPES];
@@ -701,6 +787,23 @@ if (require.main === module) {
   if (process.env.DATABASE_URL) {
     const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
     pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS lion_me_count INTEGER DEFAULT 0").then(() => console.log("lion_me_count column ready")).catch(() => {});
+    pool.query(`
+      CREATE TABLE IF NOT EXISTS agencies (
+        id SERIAL PRIMARY KEY,
+        agency_name VARCHAR(100) NOT NULL,
+        owner_name VARCHAR(100) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        phone VARCHAR(50),
+        agency_code VARCHAR(20) UNIQUE NOT NULL,
+        tier VARCHAR(20) DEFAULT 'iniciante',
+        status VARCHAR(20) DEFAULT 'pending',
+        streamer_count INTEGER DEFAULT 0,
+        total_coins_earned INTEGER DEFAULT 0,
+        commission_rate DECIMAL(4,2) DEFAULT 0.02,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `).then(() => console.log("agencies table ready")).catch((e) => console.log("agencies table:", e.message));
+    pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS agency_code VARCHAR(20)").then(() => console.log("agency_code column ready")).catch(() => {});
   }
 
   server.listen(PORT, () => {
