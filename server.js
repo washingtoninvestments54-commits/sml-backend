@@ -10,10 +10,16 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   path: "/api/socket.io",
-  cors: { origin: "*", methods: ["GET", "POST"] },
+  cors: { origin: "*", methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], credentials: true },
 });
 
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"],
+  credentials: true
+}));
+app.options("*", cors());
 app.use(express.json());
 app.use('/gifts', express.static(path.join(__dirname, 'public/gifts')));
 app.use('/.well-known', express.static(path.join(__dirname, 'public/.well-known')));
