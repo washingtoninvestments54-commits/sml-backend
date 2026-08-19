@@ -783,6 +783,78 @@ io.on("connection", (socket) => {
   });
 });
 
+
+// ─── MongoDB Seed ────────────────────────────────────────────────────────────
+const { MongoClient } = require("mongodb");
+
+async function seedMongoDB() {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.log("MONGODB_URI not set, skipping MongoDB seed");
+    return { skipped: true };
+  }
+  
+  const client = new MongoClient(uri);
+  try {
+    await client.connect();
+    const db = client.db("mobile-app-recovery");
+    const giftsCol = db.collection("gifts");
+    
+    // Upsert all gifts
+    let upserted = 0;
+    for (const gift of GIFT_TYPES) {
+      await giftsCol.updateOne(
+        { id: gift.id },
+        { $set: gift },
+        { upsert: true }
+      );
+      upserted++;
+    }
+    
+    // Create lion_me_counts collection with unique index
+    const lionMe = db.collection("lion_me_counts");
+    await lionMe.createIndex({ userId: 1 }, { unique: true }).catch(() => {});
+    
+    // Create agencies collection with unique indexes
+    const agencies = db.collection("agencies");
+    await agencies.createIndex({ agency_code: 1 }, { unique: true }).catch(() => {});
+    await agencies.createIndex({ email: 1 }, { unique: true }).catch(() => {});
+    
+    const totalGifts = await giftsCol.countDocuments({});
+    const collections = await db.listCollections().toArray();
+    const collNames = collections.map(c => c.name);
+    
+    console.log(`MongoDB seeded: ${upserted} gifts upserted, ${totalGifts} total in DB`);
+    console.log(`MongoDB collections: ${collNames.join(", ")}`);
+    
+    await client.close();
+    return { upserted, totalGifts, collections: collNames };
+  } catch (err) {
+    console.error("MongoDB seed error:", err.message);
+    await client.close().catch(() => {});
+    throw err;
+  }
+}
+
+// Admin endpoint to trigger MongoDB seed
+app.post("/api/admin/seed-mongodb", async (req, res) => {
+  try {
+    const result = await seedMongoDB();
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get("/api/admin/seed-mongodb", async (req, res) => {
+  try {
+    const result = await seedMongoDB();
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // ─── Start ───────────────────────────────────────────────────────────────────
 
 const PORT = process.env.PORT || 3000;
@@ -820,6 +892,8 @@ if (require.main === module) {
     console.log(`  Total gift types: ${GIFT_TYPES.length}`);
     console.log(`  Lucky gifts: ${GIFT_TYPES.filter(g => g.is_lucky).length}`);
     console.log(`  Cinematic gifts (with video): ${GIFT_TYPES.filter(g => g.animation_url).length}`);
+    // Auto-seed MongoDB on startup
+    seedMongoDB().catch(err => console.error("Auto-seed MongoDB failed:", err.message));
   });
 }
 
